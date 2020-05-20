@@ -30,7 +30,7 @@ blogsRouter.post('/', (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', (request, response, next) => {
-    Blog.findByIdAndRemove(request.params.id)
+    Blog.findByIdAndRemove(request.params.id, {useFindAndModify: false})
       .then(() => {
         response.status(204).end()
       })
@@ -47,7 +47,7 @@ blogsRouter.delete('/:id', (request, response, next) => {
       likes: body.likes
     }
   
-    Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+    Blog.findByIdAndUpdate(request.params.id, blog, { new: true, useFindAndModify: false })
       .then(updatedBlog => {
         response.json(updatedBlog.toJSON())
       })

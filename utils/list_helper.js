@@ -1,23 +1,21 @@
-// const palindrome = (string) => {
-//     return string
-//       .split('')
-//       .reverse()
-//       .join('')
-//   }
-  
-//   const average = (array) => {
-//     const reducer = (sum, item) => {
-//       return sum + item
-//     }
-//     return array.length === 0
-//     ? 0 
-//     : array.reduce(reducer, 0) / array.length
-//   }
 
-const dummy = (blogs) => {
-  return 1
+
+const totalLikes = (blogs) => {
+  const total = blogs.reduce((accum, item) => accum + item.likes, 0)
+  return total;
 }
-  
-  module.exports = {
-    dummy
-  }
+
+const totalLikesWithOne = (listWithOneBlog) => {
+  const total = Number(listWithOneBlog.map(blog => blog.likes));
+  return total;
+}
+
+const zeroLikes = () => {
+  return 0;
+}
+
+module.exports = {
+  totalLikes,
+  totalLikesWithOne,
+  zeroLikes
+}
