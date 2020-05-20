@@ -1,9 +1,9 @@
-const info = (...params) => {
-    console.log(...params)
+const info = async (...params) => {
+    await console.log(...params)
   }
   
-  const error = (...params) => {
-    console.error(...params)
+  const error = async (...params) => {
+    await console.error(...params)
   }
   
   module.exports = {
