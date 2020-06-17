@@ -15,7 +15,11 @@ const blogSchema = new mongoose.Schema({
   title: { type: String, required: true, minlength: 2 },
   author: { type: String, required: true, minlength: 2 },
   url: { type: String, required: true, minlength: 10 },
-  likes: Number
+  likes: Number,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 blogSchema.set('toJSON', {
