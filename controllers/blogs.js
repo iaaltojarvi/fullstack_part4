@@ -20,8 +20,13 @@ blogsRouter.get('/:id', (request, response, next) => {
 
 blogsRouter.post('/', (request, response, next) => {
   let blog = new Blog(request.body)
-  if (blog.likes === null) {
+  if (!blog.likes) {
     blog.likes = 0
+  }
+  if (!blog.title || !blog.url) {
+    return response.status(400).json({
+      error: 'Bad request'
+    })
   }
   blog
     .save()
@@ -31,29 +36,29 @@ blogsRouter.post('/', (request, response, next) => {
     .catch(error => next(error))
 })
 
-blogsRouter.delete('/:id', (request, response, next) => {
-  Blog.findByIdAndRemove(request.params.id, { useFindAndModify: false })
-    .then(() => {
-      response.status(204).end()
-    })
-    .catch(error => next(error))
+blogsRouter.delete('/:id', async (request, response, next) => {
+  try {
+    await Blog.findByIdAndRemove(request.params.id, { useFindAndModify: false })
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
 })
 
-blogsRouter.put('/:id', (request, response, next) => {
+blogsRouter.put('/:id', async (request, response, next) => {
   const body = request.body
-
   const blog = {
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes
   }
-
-  Blog.findByIdAndUpdate(request.params.id, blog, { new: true, useFindAndModify: false })
-    .then(updatedBlog => {
-      response.json(updatedBlog.toJSON())
-    })
-    .catch(error => next(error))
+  try {
+    await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, useFindAndModify: false })
+    response.json(updatedBlog.toJSON())
+  } catch (error) {
+    next(error)
+  }
 })
 
 module.exports = blogsRouter

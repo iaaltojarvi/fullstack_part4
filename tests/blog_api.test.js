@@ -72,8 +72,7 @@ test('likes is 0 if no value', async () => {
   const newPost = {
     title: 'New post with no likes',
     author: 'Me',
-    url: 'www.test.fi',
-    likes: null
+    url: 'www.test.fi'
   }
   await api
     .post('/api/blogs')
@@ -85,11 +84,16 @@ test('likes is 0 if no value', async () => {
   expect(like).toBe(0)
 })
 
-
-
-// Tee testi joka varmistaa, että jos kentälle likes ei anneta arvoa, asetetaan sen arvoksi 0. Muiden kenttien sisällöstä ei tässä tehtävässä vielä välitetä.
-// Laajenna ohjelmaa siten, että testi menee läpi.
-
+test('return bad request error if no title or url in post', async () => {
+  const newPost = {
+    author: 'Test user',
+    likes: 10
+  }
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(400, /Bad request/ig)
+})
 
 afterAll(async () => {
   await mongoose.connection.close();
