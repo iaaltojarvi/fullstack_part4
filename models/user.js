@@ -13,9 +13,9 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   })
 
 const userSchema = mongoose.Schema({
-  username: {type: String, unique: true, minlength: 3},
+  username: {type: String, required: true, unique: true, minlength: 3},
   name: String,
-  passwordHash: String,
+  passwordHash: {type: String, required: true, minlength: 3},
   blogs: [
     {
       type: mongoose.Schema.Types.ObjectId,

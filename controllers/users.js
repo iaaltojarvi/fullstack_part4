@@ -3,7 +3,7 @@ const usersRouter = require('express').Router()
 const User = require('../models/user')
 
 usersRouter.get('/', async (request, response) => {
-    const users = await User.find({})
+    const users = await User.find({}).populate('blogs', { title: 1, author: 1 })
     response.json(users.map(user => user.toJSON()))
 })
 
@@ -18,6 +18,16 @@ usersRouter.post('/', async (request, response, next) => {
         name: body.name,
         passwordHash,
     })
+    if (!body.username || !body.password) {
+        return response.status(400).json({
+            error: 'Username and password are required'
+        })
+    } 
+    if (body.username.length < 3 || body.password.length < 3) {
+        return response.status(400).json({
+            error: 'Username and password need to be more than three characters'
+        })
+    }
     try {
         const savedUser = await user.save()
         response.status(201).json(savedUser)
