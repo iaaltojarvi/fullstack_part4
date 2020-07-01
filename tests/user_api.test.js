@@ -29,33 +29,75 @@ describe('when there is initially one user at db', () => {
       .post('/api/users')
       .send(newUser)
       .expect(400)
-    expect(result.body.error).toContain('ValidationError')
+    expect(result.body.error).toContain('Please provide unique username')
 
     const response = await api.get('/api/users')
     expect(response.body).toHaveLength(1)
   })
 
-
-
   test('creation succeeds with a fresh username', async () => {
-      let usersAtStart = await api.get('/api/users')
-      usersAtStartLength = usersAtStart.body.length
+    let usersAtStart = await api.get('/api/users')
+    usersAtStartLength = usersAtStart.body.length
 
-      const newUser = {
-          username: 'mluukkai',
-          name: 'Matti Luukkainen',
-          password: 'salainen',
-      }
+    const newUser = {
+      username: 'mluukkai',
+      name: 'Matti Luukkainen',
+      password: 'salainen',
+    }
 
-      await api
-          .post('/api/users')
-          .send(newUser)
-          .expect(201)
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
 
-      const usersAtEnd = await api.get('/api/users')
-      expect(usersAtEnd.body).toHaveLength(usersAtStartLength + 1)
+    const usersAtEnd = await api.get('/api/users')
+    expect(usersAtEnd.body).toHaveLength(usersAtStartLength + 1)
 
-      const usernames = usersAtEnd.body.map(u => u.username)
-      expect(usernames).toContain(newUser.username)
+    const usernames = usersAtEnd.body.map(u => u.username)
+    expect(usernames).toContain(newUser.username)
   })
+
+  test('user is not created if username is under three characters', async () => {
+    let usersAtStart = await api.get('/api/users')
+    usersAtStartLength = usersAtStart.body.length
+
+    const newUser = {
+      username: 'm',
+      name: 'Mirja',
+      password: 'salaisuus',
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400, /Please provide unique username/ig)
+
+    const usersAtEnd = await api.get('/api/users')
+    expect(usersAtEnd.body).toHaveLength(usersAtStartLength)
+
+  })
+
+  test('user is not created if password is not provided', async () => {
+    let usersAtStart = await api.get('/api/users')
+    usersAtStartLength = usersAtStart.body.length
+
+    const newUser = {
+      username: 'mirjamimi',
+      name: 'Mirja'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400, /Password is required/ig)
+
+    const usersAtEnd = await api.get('/api/users')
+    expect(usersAtEnd.body).toHaveLength(usersAtStartLength)
+
+  })
+
+})
+
+afterAll(async () => {
+  await mongoose.connection.close();
 })

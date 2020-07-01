@@ -19,80 +19,82 @@ const initialBlogs = [
   }
 ]
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
+describe('When there are two blogs in db', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
 
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
+    let blogObject = new Blog(initialBlogs[0])
+    await blogObject.save()
 
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
-})
+    blogObject = new Blog(initialBlogs[1])
+    await blogObject.save()
+  })
 
-test('blogs are returned as json', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.status).toBe(200)
-  expect(response.type).toBe("application/json")
-})
+  test('blogs are returned as json', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.status).toBe(200)
+    expect(response.type).toBe("application/json")
+  })
 
-test('all blogs are returned', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(initialBlogs.length)
-})
+  test('all blogs are returned', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(initialBlogs.length)
+  })
 
-test('_id is converted to id', async () => {
-  const response = await api.get('/api/blogs')
-  const blog = response.body[0]
-  expect(blog.id).toBeDefined();
-})
+  test('_id is converted to id', async () => {
+    const response = await api.get('/api/blogs')
+    const blog = response.body[0]
+    expect(blog.id).toBeDefined();
+  })
 
-test('post adds one blog', async () => {
-  const newPost = {
-    title: 'I try to test if this is ok',
-    author: 'Me',
-    url: 'www.test.fi',
-    likes: 0
-  }
-  await api
-    .post('/api/blogs')
-    .send(newPost)
-    .expect(201)
+  test('post adds one blog', async () => {
+    const newPost = {
+      title: 'I try to test if this is ok',
+      author: 'Me',
+      url: 'www.test.fi',
+      likes: 0
+    }
+    await api
+      .post('/api/blogs')
+      .send(newPost)
+      .expect(201)
 
-  const response = await api.get('/api/blogs')
+    const response = await api.get('/api/blogs')
 
-  const title = response.body.map(r => r.title)
+    const title = response.body.map(r => r.title)
 
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
-  expect(title).toContain(
-    'I try to test if this is ok'
-  )
-})
+    expect(response.body).toHaveLength(initialBlogs.length + 1)
+    expect(title).toContain(
+      'I try to test if this is ok'
+    )
+  })
 
-test('likes is 0 if no value', async () => {
-  const newPost = {
-    title: 'New post with no likes',
-    author: 'Me',
-    url: 'www.test.fi'
-  }
-  await api
-    .post('/api/blogs')
-    .send(newPost)
-    .expect(201)
-  const response = await api.get('/api/blogs')
-  let likes = response.body.map(r => r.likes)
-  like = likes[initialBlogs.length]
-  expect(like).toBe(0)
-})
+  test('likes is 0 if no value', async () => {
+    const newPost = {
+      title: 'New post with no likes',
+      author: 'Me',
+      url: 'www.test.fi'
+    }
+    await api
+      .post('/api/blogs')
+      .send(newPost)
+      .expect(201)
+    const response = await api.get('/api/blogs')
+    let likes = response.body.map(r => r.likes)
+    like = likes[initialBlogs.length]
+    expect(like).toBe(0)
+  })
 
-test('return bad request error if no title or url in post', async () => {
-  const newPost = {
-    author: 'Test user',
-    likes: 10
-  }
-  await api
-    .post('/api/blogs')
-    .send(newPost)
-    .expect(400, /Bad request/ig)
+  test('return bad request error if no title or url in post', async () => {
+    const newPost = {
+      author: 'Test user',
+      likes: 10
+    }
+    await api
+      .post('/api/blogs')
+      .send(newPost)
+      .expect(400, /Bad request/ig)
+  })
 })
 
 afterAll(async () => {
