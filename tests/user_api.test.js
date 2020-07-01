@@ -95,7 +95,6 @@ describe('when there is initially one user at db', () => {
     expect(usersAtEnd.body).toHaveLength(usersAtStartLength)
 
   })
-
 })
 
 afterAll(async () => {
