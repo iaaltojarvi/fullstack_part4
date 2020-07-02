@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
@@ -22,21 +23,25 @@ blogsRouter.get('/:id', async (request, response, next) => {
 
 blogsRouter.post('/', async (request, response, next) => {
   let body = request.body
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
   if (!body.title || !body.url) {
     return response.status(400).json({
       error: 'Bad request'
     })
   }
+  if (!request.token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
 
-  const user = await User.findById(body.user)
+  const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user._id 
+    user: user._id
   })
 
   try {
@@ -50,11 +55,20 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
-  try {
-    await Blog.findByIdAndRemove(request.params.id, { useFindAndModify: false })
-    response.status(204).end()
-  } catch (error) {
-    next(error)
+  console.log(request.params.id)
+  const blog = await Blog.findById(request.params.id)
+  console.log('blog', blog)
+  const blogger = blog.user.toString()
+  console.log('blogger', blogger)
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  console.log('decoded', decodedToken.id)
+  if (decodedToken.id.toString() === blogger) {
+    try {
+      await Blog.findByIdAndRemove(request.params.id, { useFindAndModify: false })
+      response.status(204).end()
+    } catch (error) {
+      next(error)
+    }
   }
 })
 
