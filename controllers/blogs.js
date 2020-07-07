@@ -47,6 +47,7 @@ blogsRouter.post('/', async (request, response, next) => {
   try {
     const savedBlog = await blog.save()
     user.blogs = user.blogs.concat(savedBlog._id)
+    console.log('users blogs', user.blogs)
     await user.save()
     response.json(savedBlog.toJSON())
   } catch (error) {
@@ -55,13 +56,9 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
-  console.log(request.params.id)
   const blog = await Blog.findById(request.params.id)
-  console.log('blog', blog)
   const blogger = blog.user.toString()
-  console.log('blogger', blogger)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log('decoded', decodedToken.id)
   if (decodedToken.id.toString() === blogger) {
     try {
       await Blog.findByIdAndRemove(request.params.id, { useFindAndModify: false })
