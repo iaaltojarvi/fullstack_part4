@@ -79,7 +79,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
   }
   try {
     await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, useFindAndModify: false })
-    response.json(updatedBlog.toJSON())
+    // response.json(updatedBlog.toJSON())
   } catch (error) {
     next(error)
   }
